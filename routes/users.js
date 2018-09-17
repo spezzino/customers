@@ -73,6 +73,27 @@ router.post('/', [
   return res.status(201).json({});
 });
 
+router.put('/:userId', [
+  check('status', 'status is not present and is required').exists()
+    .isIn(['prospective', 'current', 'non-active']).withMessage('status must be one of values [\'prospective\',\'current\',\'non-active\']')
+], (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    let errorField = errors.array({ onlyFirstError: true })[0];
+    throw new InvalidParameter({ message: errorField.msg, errorCode: errorField.param });
+  }
+  const userData = matchedData(req);
+
+  const { status } = userData;
+  User.findOneAndUpdate({
+    _id: req.params.userId
+  }, {
+    status
+  }, (err, _) => {
+    return res.status(201).json({});
+  });
+});
+
 router.get('/:userId/notes', async (req, res, next) => {
   const notes = await User.findById(req.params.userId)
     .select('notes -_id');

@@ -52,17 +52,20 @@
                                             <v-layout wrap>
                                                 <v-flex xs12 sm6 md4>
                                                     <v-text-field v-model="userItem.name"
+                                                                  :disabled="userItem.edit"
                                                                   :rules="[rules.required]"
                                                                   label="Name"></v-text-field>
                                                 </v-flex>
                                                 <v-flex xs12 sm6 md4>
                                                     <v-text-field
                                                             v-model="userItem.email"
+                                                            :disabled="userItem.edit"
                                                             :rules="[rules.required, rules.email]"
                                                             label="Email"></v-text-field>
                                                 </v-flex>
                                                 <v-flex xs12 sm6 md4>
                                                     <v-text-field v-model="userItem.phoneNumber"
+                                                                  :disabled="userItem.edit"
                                                                   :rules="[rules.required]"
                                                                   label="Phone Number"></v-text-field>
                                                 </v-flex>
@@ -107,6 +110,9 @@
                         <td class="text-xs-left">{{ props.item.phoneNumber }}</td>
                         <td class="text-xs-left">{{ props.item.status }}</td>
                         <td class="text-xs-right">
+                            <v-btn color="primary" flat icon @click="editUser(props.item)">
+                                <v-icon>create</v-icon>
+                            </v-btn>
                             <v-btn color="primary" flat icon @click="viewNotes(props.item._id)">
                                 <v-icon>visibility</v-icon>
                             </v-btn>
@@ -144,7 +150,7 @@
           { text: 'Email', value: 'email', sortable: true },
           { text: 'Phone', value: 'phoneNumber', sortable: true },
           { text: 'Status', value: 'status', sortable: true },
-          { text: 'Notes', value: 'notesCount', sortable: true }
+          { text: 'Actions', sortable: true }
         ],
         users: [],
         loading: false,
@@ -161,7 +167,8 @@
           name: '',
           email: '',
           phoneNumber: '',
-          status: null
+          status: null,
+          edit: false
         },
         notesFromUser: null,
         rules: {
@@ -183,10 +190,22 @@
         this.notesFromUser = userId;
         this.notesDialog = true;
       },
+      editUser(user) {
+        this.userItem = {
+          name: user.name,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          status: user.status,
+          edit: true,
+          userId: user._id
+        };
+        this.dialog = true;
+      },
       saveUser() {
         if (this.$refs.form.validate()) {
-          fetch('/api/users', {
-            method: 'POST',
+          const url = this.userItem.edit === true ? `/api/users/${this.userItem.userId}` : '/api/users';
+          fetch(url, {
+            method: this.userItem.edit === true ? 'PUT' : 'POST',
             headers: {
               "Content-Type": "application/json; charset=utf-8"
             },
@@ -196,7 +215,9 @@
               name: '',
               email: '',
               phoneNumber: '',
-              status: null
+              status: null,
+              edit: false,
+              userId: null
             };
             this.loadUsers();
             this.close();
