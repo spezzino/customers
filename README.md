@@ -22,3 +22,8 @@ Based on expressjs for backend end vuejs for the UI.
 `yarn run start`
 
 Open `localhost:3000` in the browser
+
+
+### Test
+
+`yarn run test`

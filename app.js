@@ -20,8 +20,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'web/dist')));
 
-mongoose.set('debug', true);
-
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
